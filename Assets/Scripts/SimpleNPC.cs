@@ -31,6 +31,6 @@ public class SimpleNPC : MonoBehaviour
 
     public void SetRandomWalkSpeed()
     {
-        walkSpeed = Random.Range(1f, 7f);
+        walkSpeed = Random.Range(1f, 3f);
     }
 }
