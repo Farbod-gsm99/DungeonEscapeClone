@@ -145,6 +145,7 @@ public class DungeonEscapeEnvController : MonoBehaviour
         {
             m_AgentGroup.EndGroupEpisode();
             ResetScene();
+            return;
         }
 
         // spawn tombstone

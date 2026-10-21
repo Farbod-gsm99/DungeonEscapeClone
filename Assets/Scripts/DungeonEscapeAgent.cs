@@ -76,15 +76,15 @@ public class DungeonEscapeAgent : Agent
         {
             discreteActionsOut[0] = 1;
         }
-        if (Input.GetKey(KeyCode.S))
+        else if (Input.GetKey(KeyCode.S))
         {
             discreteActionsOut[0] = 2;
         }
-        if (Input.GetKey(KeyCode.A))
+        else if (Input.GetKey(KeyCode.A))
         {
             discreteActionsOut[0] = 4;
         }
-        if (Input.GetKey(KeyCode.D))
+        else if (Input.GetKey(KeyCode.D))
         {
             discreteActionsOut[0] = 3;
         }
