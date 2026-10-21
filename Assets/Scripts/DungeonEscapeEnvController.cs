@@ -1,15 +1,16 @@
 using System.Collections;
-using System.Numerics;
+using System.Collections.Generic;
 using UnityEngine;
+using Unity.MLAgents;
 
-public class NewMonoBehaviourScript : MonoBehaviour
+public class DungeonEscapeEnvController : MonoBehaviour
 {
     [System.Serializable] public class PlayerInfo
     {
         public DungeonEscapeAgent Agent;
         [HideInInspector] public Vector3 StartingPos;
-        [HideInInspector] public Vector3 StartingRot;
-        [HideInInspector] public Eigidbody Rb;
+        [HideInInspector] public Quaternion StartingRot;
+        [HideInInspector] public Rigidbody Rb;
         [HideInInspector] public Collider Col;
     }
 
@@ -17,7 +18,7 @@ public class NewMonoBehaviourScript : MonoBehaviour
     {
         public SimpleNPC Agent;
         [HideInInspector] public Vector3 StartingPos;
-        [HideInInspector] public Vector3 StartingRot;
+        [HideInInspector] public Quaternion StartingRot;
         [HideInInspector] public Rigidbody Rb;
         [HideInInspector] public Collider Col;
         public Transform T;
@@ -48,18 +49,19 @@ public class NewMonoBehaviourScript : MonoBehaviour
     {
         areaBounds = ground.GetComponent<Collider>().bounds;
         m_GroundRenderer = ground.GetComponent<Renderer>();
-        m_GroundMaterial = m_GroundRenderer.Material;
+        m_GroundMaterial = m_GroundRenderer.material;
 
         m_DungeonEscapeSettings = FindFirstObjectByType<DungeonEscapeSettings>();
         m_NumberOfRemainingPlayers = AgentsList.Count;
+        m_AgentGroup = new SimpleMultiAgentGroup();
 
         Key.SetActive(false);
         
         foreach (var item in AgentsList)
         {
-            item.StartingPos = item.Agent.tansform.position;
+            item.StartingPos = item.Agent.transform.position;
             item.StartingRot = item.Agent.transform.rotation;
-            item.Rb = item.Agent.GetComponent<RigidBody>();
+            item.Rb = item.Agent.GetComponent<Rigidbody>();
             item.Col = item.Agent.GetComponent<Collider>();
 
             m_AgentGroup.RegisterAgent(item.Agent);
@@ -97,11 +99,11 @@ public class NewMonoBehaviourScript : MonoBehaviour
             var randomPosX = Random.Range(-areaBounds.extents.x * m_DungeonEscapeSettings.spawnAreaMarginMultiplier ,
             areaBounds.extents.x * m_DungeonEscapeSettings.spawnAreaMarginMultiplier);
 
-            var randomPosZ = Random.Range(-areaBounds.extents.z = m_DungeonEscapeSettings.spawnAreaMarginMultiplier,
+            var randomPosZ = Random.Range(-areaBounds.extents.z * m_DungeonEscapeSettings.spawnAreaMarginMultiplier,
             areaBounds.extents.z * m_DungeonEscapeSettings.spawnAreaMarginMultiplier);
 
             randomSpawnPos = ground.transform.position + new Vector3(randomPosX, 1f, randomPosZ);
-            if (Physics.CehckBox(randomPos, new Vector3(2.5f, 0.01f, 2.5f)) == false)
+            if (!Physics.CheckBox(randomSpawnPos, new Vector3(2.5f, 0.01f, 2.5f)))
             {
                 foundNewSpawnLocation = true;
             }
@@ -109,7 +111,7 @@ public class NewMonoBehaviourScript : MonoBehaviour
         return randomSpawnPos;
     }
 
-    private Vector3 GetRandomRot()
+    private Quaternion GetRandomRot()
     {
         return Quaternion.Euler(0, Random.Range(0.0f, 360.0f), 0);
     }
@@ -127,7 +129,7 @@ public class NewMonoBehaviourScript : MonoBehaviour
     IEnumerator GoalScoredSwapGroundMaterial(Material mat, float time)
     {
         m_GroundRenderer.material = mat;
-        yield return WaitForSeconds(time);
+        yield return new WaitForSeconds(time);
         m_GroundRenderer.material = m_GroundMaterial;
     }
 
@@ -179,13 +181,13 @@ public class NewMonoBehaviourScript : MonoBehaviour
         m_NumberOfRemainingPlayers = AgentsList.Count;
 
         var randomMultiplier = Random.Range(0, 4);
-        var rotationAngle = 90.0f * RandomMultiplier;
+        var rotationAngle = 90.0f * randomMultiplier;
         transform.Rotate(new Vector3(0f, rotationAngle, 0f));
 
         foreach (var item in AgentsList)
         {
-            var pos = UseRandomAgentPosition ? GetRandomSpawnPos : item.StartingPos;
-            var rot = UseRandomAgentRotation ? GetRandomRot : item.StartingRot;
+            var pos = UseRandomAgentPosition ? GetRandomSpawnPos() : item.StartingPos;
+            var rot = UseRandomAgentRotation ? GetRandomRot() : item.StartingRot;
 
             item.Agent.transform.SetPositionAndRotation(pos, rot);
             item.Rb.linearVelocity = Vector3.zero;

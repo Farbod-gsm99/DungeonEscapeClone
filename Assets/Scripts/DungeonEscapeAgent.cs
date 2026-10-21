@@ -1,20 +1,22 @@
-using System.Numerics;
 using UnityEngine;
+using Unity.MLAgents;
+using Unity.MLAgents.Actuators;
+using Unity.MLAgents.Sensors;
 
 public class DungeonEscapeAgent : Agent
 {
 
     private Rigidbody m_AgentRb;
     private DungeonEscapeSettings m_DungeonEscapeSettings;
-    private bool IHaveAKey;
+    public bool IHaveAKey;
     public GameObject MyKey;
-    public DungeonEscapeEnvController m_GameController;
+    private DungeonEscapeEnvController m_GameController;
     public override void Initialize()
     {
         // Assign variables
         m_GameController = GetComponentInParent<DungeonEscapeEnvController>();
         m_AgentRb = GetComponent<Rigidbody>();
-        m_DungeonEscapeSettings = FindFirstObjectByType<m_DungeonEscapeSettings>();
+        m_DungeonEscapeSettings = FindFirstObjectByType<DungeonEscapeSettings>();
         MyKey.SetActive(false);
         IHaveAKey = false;
     }
@@ -32,10 +34,10 @@ public class DungeonEscapeAgent : Agent
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-        MoveAgent(actionBuffers.DiscereteActions);
+        MoveAgent(actionBuffers.DiscreteActions);
     }
 
-    public override void MoveAgent(ActionSegment<int> act)
+    public void MoveAgent(ActionSegment<int> act)
     {
         var dirToGo = Vector3.zero;
         var rotateDir = Vector3.zero;
@@ -98,7 +100,7 @@ public class DungeonEscapeAgent : Agent
             IHaveAKey = false;
         }
 
-        if (col.transform.CompareTag("lock"))
+        if (col.transform.CompareTag("door"))
         {
             if (IHaveAKey)
             {
@@ -107,7 +109,7 @@ public class DungeonEscapeAgent : Agent
                 m_GameController.UnlockDoor();
             }
         }
-        if (col.transform.CompareTag("portal"))
+        if (col.transform.CompareTag("cave"))
         {
             m_GameController.TouchedHazard(this);
         }

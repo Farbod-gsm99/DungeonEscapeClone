@@ -1,10 +1,9 @@
-using System.Numerics;
 using UnityEngine;
 
 public class SimpleNPC : MonoBehaviour
 {
     public Transform target;
-    private Ridigbody rb;
+    private Rigidbody rb;
 
     public float walkSpeed = 1;
 
@@ -23,7 +22,7 @@ public class SimpleNPC : MonoBehaviour
 
     void FixedUpdate()
     {
-        dirToGo = target - transform.position;
+        dirToGo = target.position - transform.position;
         dirToGo.y = 0;
         rb.rotation = Quaternion.LookRotation(dirToGo);
 
